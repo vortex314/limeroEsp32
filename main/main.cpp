@@ -20,8 +20,8 @@ class Pinger : public Actor {
 
  public:
   ValueSource<int> out;
-  Sink<int, 4> in;
-  Pinger(Thread &thr) : Actor(thr) {
+  Sink<int> in;
+  Pinger(Thread &thr) : Actor(thr) ,in(4){
     in.async(thread(), [&](const int &i) { out = _counter++; });
   }
   void start() { out = _counter++; }
@@ -33,8 +33,8 @@ class Echo : public Actor {
  public:
   ValueSource<int> msgPerMsec = 0;
   ValueSource<int> out;
-  Sink<int, 4> in;
-  Echo(Thread &thr) : Actor(thr) {
+  Sink<int> in;
+  Echo(Thread &thr) : Actor(thr) ,in(4){
     in.async(thread(), [&](const int &i) {
       if (i % DELTA == 0) {
         uint64_t endTime = Sys::millis();
@@ -186,7 +186,7 @@ LambdaSource<uint32_t> systemHeap([]() { return Sys::getFreeHeap(); });
 LambdaSource<uint64_t> systemUptime([]() { return Sys::millis(); });
 Poller poller(mqttThread);
 
-ArrayQueue<int, 16> q;
+ArrayQueue<int> q(16);
 
 #ifdef GPIO_TEST
 #include <HardwareTester.h>
@@ -309,10 +309,7 @@ extern "C" void app_main(void) {
   systemAlive >> mqtt.toTopic<bool>("system/alive");
   poller(systemUptime)(systemHeap)(systemHostname)(systemBuild)(systemAlive);
 
-  Sink<int, 3> intSink([](int i) { INFO("received an int %d", i); });
-  mqtt.fromTopic<int>("os/int") >> intSink;
-
-  TimerSource logTimer(thisThread, 5000, true);
+   TimerSource logTimer(thisThread, 5000, true);
 
   logTimer >> ([](const TimerMsg &tm) {
     /*   Register conf("CONF",

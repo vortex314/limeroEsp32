@@ -1,8 +1,8 @@
 #ifndef SWD_H
 #define SWD_H
 #include <Mqtt.h>
-#include <limero.h>
 #include <driver/spi_master.h>
+#include <limero.h>
 extern "C" {
 #include <libswd.h>
 };
@@ -19,7 +19,7 @@ class Swd : public Actor, public Ota {
   spi_bus_config_t pinsSPI;
 
  public:
-  Sink<MqttBlock, 10> ota;
+  Sink<MqttBlock> ota;
 
   Swd(Thread&, uint32_t, uint32_t, uint32_t);
   void init();

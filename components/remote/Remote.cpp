@@ -12,7 +12,9 @@ Remote::Remote(Thread& thr) : Actor(thr),
     _measureTimer(thr,100,true),
     _defaultTimer(thr,500,true),
     _leftButton( _buttonLeft,buttonLeft),
-    _rightButton( _buttonRight,buttonRight)
+    _rightButton( _buttonRight,buttonRight),
+    ledLeft(2),
+    ledRight(2)
 {
 
     ledLeft.on(false);
@@ -24,13 +26,13 @@ Remote::Remote(Thread& thr) : Actor(thr),
         _ledRight.write(b?0:1);
     });
 
-    _defaultTimer >> *(new Sink<TimerMsg,2>([&](const TimerMsg& tm) {
+    _defaultTimer >> *(new Sink<TimerMsg>(2,[&](const TimerMsg& tm) {
         buttonLeft.request();
         buttonRight.request();
         potLeft.request();
         potRight.request();
     }));
-    _measureTimer >> *(new Sink<TimerMsg,2>([&](const TimerMsg& tm) {
+    _measureTimer >> *(new Sink<TimerMsg>(2,[&](const TimerMsg& tm) {
         int pot = _adcLeft.getValue();
         if ( abs(pot-potLeft())>10) potLeft = pot;
         pot = _adcRight.getValue();

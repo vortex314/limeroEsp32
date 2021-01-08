@@ -7,7 +7,7 @@
 
 #include "HCSR04.h"
 
-class UltraSonic : public Actor, public Sink<TimerMsg, 2> {
+class UltraSonic : public Actor, public Sink<TimerMsg> {
   Connector* _connector;
   HCSR04* _hcsr;
   TimerSource _pollTimer;

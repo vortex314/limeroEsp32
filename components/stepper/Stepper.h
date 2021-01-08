@@ -1,8 +1,8 @@
 #ifndef STEPPER_H
 #define STEPPER_H
 #include <Hardware.h>
-#include <limero.h>
 #include <Pulser.h>
+#include <limero.h>
 
 class Stepper : public Actor, public Device {
   Connector &_uext;
@@ -19,7 +19,7 @@ class Stepper : public Actor, public Device {
   ValueFlow<int> angleTarget = 0;
   ValueFlow<int> stepTarget = 0;
   ValueFlow<int> stepMeasured = 0;
-  Sink<std::string,3> msg;
+  Sink<std::string> msg;
   Stepper(Thread &thr, Connector &uext);
   ~Stepper();
   void init();

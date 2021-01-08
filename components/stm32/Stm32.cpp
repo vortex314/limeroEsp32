@@ -58,9 +58,12 @@ Stm32::Stm32(Thread& thr, int pinTxd, int pinRxd, int pinBoot0, int pinReset)
       _boot0(DigitalOut::create(pinBoot0)),
       _timer(thread(), 1000, false),
       _testTimer(thread(), 1000, true),
+      ota(10),
+      rxd(5),
       progBaudrate("stm32/progBaudrate", 512000),
-      logBaudrate("stm32/logBaudrate", 115200),
-      flashStartAddress("stm32/flashStartAddress", 0x8000000) {}
+      logBaudrate("stm32/logBaudrate", 115200) ,
+      flashStartAddress("stm32/flashStartAddress", 0x8000000) 
+      {}
 
 void Stm32::init() {
   _timer.stop();

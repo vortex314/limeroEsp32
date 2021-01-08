@@ -1,7 +1,7 @@
 #include <Swd.h>
 
 Swd::Swd(Thread& thr, uint32_t pinSwdio, uint32_t pinSwclk, uint32_t pinSwo)
-    : Actor(thr) {
+    : Actor(thr),ota(10) {
   BZERO(pinsSPI);
   pinsSPI.mosi_io_num = pinSwdio;  // SWD I/O
   pinsSPI.miso_io_num = pinSwo;    // not connected

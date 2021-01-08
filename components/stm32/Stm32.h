@@ -95,8 +95,8 @@ class Stm32 : public Actor {
   std::string readMemory;
   std::string writeBuffer;
 
-  Sink<MqttBlock, 10> ota;
-  Sink<std::string, 5> rxd;
+  Sink<MqttBlock> ota;
+  Sink<std::string> rxd;
   ValueFlow<std::string> message;
   ValueFlow<uint32_t> startAddress;
   ValueFlow<uint32_t> baudrate;

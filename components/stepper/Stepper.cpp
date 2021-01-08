@@ -12,13 +12,14 @@ Stepper::Stepper(Thread &thr, Connector &uext)
       _pinEnable(uext.getDigitalOut(LP_SDA)),
       _pinCenter(uext.getDigitalIn(LP_SCK)),
       _pinLeft(uext.getDigitalIn(LP_MOSI)),
-      _pinRight(uext.getDigitalIn(LP_CS)) {
+      _pinRight(uext.getDigitalIn(LP_CS)),
+      msg(3) {
   _pulser.divider = 80;
   _pulser.intervalSec = 0.001;
   _pulser.autoReload = true;
   angleTarget >> ([&](const int &deg) { stepTarget = deg * STEPS_PER_DEG; });
 
-  auto busyHandler = new Sink<bool, 3>();
+  auto busyHandler = new Sink<bool>(3);
   busyHandler->async(thread(), [&](const bool &busy) {
     INFO(" pulser : %s target : %d vs measured : %d", busy ? "busy" : "free",
          stepTarget(), stepMeasured());
@@ -38,7 +39,7 @@ Stepper::Stepper(Thread &thr, Connector &uext)
          _pinRight.read());
   });
 
-  auto stepHandler = new Sink<int, 3>();
+  auto stepHandler = new Sink<int>(3);
   stepHandler->async(thread(), [&](const int &st) {
     INFO(" target:%d measured:%d dir:%d pulser:%d", stepTarget(),
          stepMeasured(), _direction, _pulser.busy());
