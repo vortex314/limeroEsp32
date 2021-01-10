@@ -22,7 +22,7 @@ CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/i
 CXXFLAGS +=  $(DEFINES) 
 CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  -I$(WORKSPACE)/limero/inc
-CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections -std=c++11 -fno-exceptions -lstdc++
+CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections -std=c++11 -fno-exceptions -lstdc++ -faligned-new
 
 EXTRA_COMPONENT_DIRS = mqtt esp-mqtt $(WORKSPACE)/limero/esp32_idf  $(WORKSPACE)/limero/common
 # LDFLAGS += -Wl,-latomic 

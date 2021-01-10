@@ -19,7 +19,7 @@
                 "panel": "shared"
             },
             "args": [
-                "GPS_SERIAL"
+                "GPS_WIFI"
             ],
             "problemMatcher": {
                 "owner": "cpp",
