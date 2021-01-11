@@ -11,7 +11,7 @@ LogIsr* LogIsr::_me = 0;
 bool LogIsr::_debug = false;
 
 LogIsr::LogIsr(Thread& thr)
-    : Actor(thr), _buffer(256), logTimer(thr, 50, true), logs(20) {
+    : Actor(thr),  logTimer(thr, 50, true), logs(20) {
   _me = this;
 }
 
@@ -19,7 +19,7 @@ LogIsr::~LogIsr() {}
 
 void LogIsr::log(const char* str) {
   if (_me == 0) return;
-  for (int i = 0; i <= strlen(str); i++) _me->_buffer.write(str[i]);
+  for (int i = 0; i <= strlen(str); i++) _me->_buffer.push_back(str[i]);
 }
 
 void LogIsr::log(const char* file, uint32_t line, const char* fmt, ...) {
@@ -40,8 +40,9 @@ void LogIsr::log(const char* file, uint32_t line, const char* fmt, ...) {
 void LogIsr::init() {
   logTimer >> ([&](const TimerMsg& tm) {
     std::string line;
-    while (_buffer.hasData()) {
-      char ch = _buffer.read();
+    while (_buffer.size()) {
+      char ch = _buffer.front();
+      _buffer.pop_front();
       if (ch == 0) {
         logger.serialLog((char*)line.c_str(), line.length());
         line.clear();

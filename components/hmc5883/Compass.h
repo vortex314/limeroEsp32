@@ -11,7 +11,6 @@ class Compass : public Actor,public Device
     Connector& _uext;
     HMC5883L* _hmc;
     TimerSource measureTimer;
-    TimerSource reportTimer;
     struct Vector<float> _v;
 
 public:

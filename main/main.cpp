@@ -388,8 +388,8 @@ extern "C" void app_main(void) {
   poller >> motor.KD == mqtt.topic<float>("motor/KD");
   poller >> motor.current >> mqtt.toTopic<float>("motor/current");
 
-  motor.deviceState >> mqtt.toTopic<int>("motor/state");
-  motor.deviceMessage >> mqtt.toTopic<std::string>("motor/message");
+  poller >> motor.deviceState >> mqtt.toTopic<int>("motor/state");
+  poller >> motor.deviceMessage >> mqtt.toTopic<std::string>("motor/message");
 #endif
 
 #ifdef SERVO
@@ -397,18 +397,16 @@ extern "C" void app_main(void) {
   servo.watchdogTimer.interval(3000);
   servo.init();
   mqtt.fromTopic<bool>("servo/watchdogReset") >> servo.watchdogReset;
-  servo.pwm >> mqtt.toTopic<float>("servo/pwm");
-  servo.adcPot >> mqtt.toTopic<int>("servo/adcPot");
-  servo.angleMeasured >> mqtt.toTopic<int>("servo/angleMeasured");
-  servo.KI == mqtt.topic<float>("servo/KI");
-  servo.KP == mqtt.topic<float>("servo/KP");
-  servo.KD == mqtt.topic<float>("servo/KD");
-  servo.current == mqtt.topic<float>("servo/current");
-  servo.angleTarget == mqtt.topic<int>("servo/angleTarget");
-  servo.deviceState >> mqtt.toTopic<int>("servo/state");
-  servo.deviceMessage >> mqtt.toTopic<std::string>("servo/message");
-  poller(servo.KI)(servo.KP)(servo.KD)(servo.angleTarget);
-  poller(servo.deviceMessage)(servo.deviceState);
+  poller >> servo.pwm >> mqtt.toTopic<float>("servo/pwm");
+  poller >> servo.adcPot >> mqtt.toTopic<int>("servo/adcPot");
+  poller >> servo.angleMeasured >> mqtt.toTopic<int>("servo/angleMeasured");
+  poller >> servo.KI == mqtt.topic<float>("servo/KI");
+  poller >> servo.KP == mqtt.topic<float>("servo/KP");
+  poller >> servo.KD == mqtt.topic<float>("servo/KD");
+  poller >> servo.current == mqtt.topic<float>("servo/current");
+  poller >> servo.angleTarget == mqtt.topic<int>("servo/angleTarget");
+  poller >> servo.deviceState >> mqtt.toTopic<int>("servo/state");
+  poller >> servo.deviceMessage >> mqtt.toTopic<std::string>("servo/message");
 #endif
 
 #ifdef STEPPER
