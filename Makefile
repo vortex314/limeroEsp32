@@ -30,6 +30,10 @@ EXTRA_COMPONENT_DIRS = mqtt esp-mqtt $(WORKSPACE)/limero/esp32_idf  $(WORKSPACE)
 
 include $(IDF_PATH)/make/project.mk
 
+RELAY:
+	touch main/main.cpp
+	make DEFINE=" -DRELAY "
+
 SWD:
 	touch main/main.cpp
 	make DEFINE=" -DCOMMAND=1 -DSWD "

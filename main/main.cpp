@@ -8,10 +8,11 @@
 //______________________________________________________________________
 //
 
-template <class T> class RequestFlow : public Flow<T, T> {
+template <class T>
+class RequestFlow : public Flow<T, T> {
   Source<T> &_source;
 
-public:
+ public:
   RequestFlow(Source<T> &source) : _source(source) {}
   void request() { _source.request(); }
   void on(const T &t) { this->emit(t); }
@@ -23,7 +24,7 @@ class Poller : public Actor {
   std::vector<Requestable *> _requestables;
   uint32_t _idx = 0;
 
-public:
+ public:
   ValueFlow<bool> connected;
   ValueFlow<uint32_t> interval = 500;
   Poller(Thread &t) : Actor(t), _pollInterval(t, 500, true) {
@@ -42,22 +43,26 @@ public:
       return *rf;
     }*/
 
-  template <class T> LambdaSource<T> &operator>>(LambdaSource<T> &source) {
+  template <class T>
+  LambdaSource<T> &operator>>(LambdaSource<T> &source) {
     _requestables.push_back(&source);
     return source;
   }
 
-  template <class T> ValueSource<T> &operator>>(ValueSource<T> &source) {
+  template <class T>
+  ValueSource<T> &operator>>(ValueSource<T> &source) {
     _requestables.push_back(&source);
     return source;
   }
 
-  template <class T> ValueFlow<T> &operator>>(ValueFlow<T> &source) {
+  template <class T>
+  ValueFlow<T> &operator>>(ValueFlow<T> &source) {
     _requestables.push_back(&source);
     return source;
   }
 
-  template <class T> RefSource<T> &operator>>(RefSource<T> &source) {
+  template <class T>
+  RefSource<T> &operator>>(RefSource<T> &source) {
     _requestables.push_back(&source);
     return source;
   }
@@ -89,6 +94,14 @@ MqttSerial mqtt(mqttThread);
 Wifi wifi(mqttThread);
 MqttWifi mqtt(mqttThread);
 MqttOta mqttOta;
+#endif
+
+#ifdef RELAY
+Connector uext(1);
+DigitalOut &relay1 = uext.getDigitalOut(LP_TXD);
+DigitalOut &relay2 = uext.getDigitalOut(LP_SCL);
+TimerSource ticker(thisThread, 5000, true);
+
 #endif
 
 #ifdef US
@@ -181,7 +194,7 @@ Swd swd(stm32Thread, 13, 14, 12);
 #endif
 
 class EchoTest : public Actor {
-public:
+ public:
   TimerSource trigger;
   ValueSource<uint64_t> counter;
   ValueSource<uint32_t> delta;
@@ -232,6 +245,24 @@ extern "C" void app_main(void) {
 #else
   wifi.init();
   mqtt.init();
+
+  relay1.setMode(DigitalOut::DOUT_PULL_DOWN);
+  relay2.setMode(DigitalOut::DOUT_PULL_DOWN);
+  relay1.init();
+  relay2.init();
+
+  ticker >> [](const TimerMsg &tm) {
+    static int st = 0;
+    if (st == 0) {
+      st = 1;
+      relay1.write(1);
+      relay2.write(1);
+    } else {
+      st = 0;
+      relay1.write(0);
+      relay2.write(0);
+    }
+  };
 
   wifi.connected >> mqtt.wifiConnected;
   //-----------------------------------------------------------------  WIFI
@@ -294,11 +325,9 @@ extern "C" void app_main(void) {
   pulser >> ([](const TimerMsg &tm) {
     static int i = 0;
     int pwm = i % 200;
-    if (pwm > 100)
-      pwm = 200 - i;
+    if (pwm > 100) pwm = 200 - i;
     hw.pwm(50);
-    if (i++ == 200)
-      i = 0;
+    if (i++ == 200) i = 0;
   });
 
   TimerSource regTimer(thisThread, 1000, true, "reg");
@@ -306,8 +335,7 @@ extern "C" void app_main(void) {
   regFlow.lambda([](MqttMessage &mq, const TimerMsg &tm) {
     static int cnt = 0;
     cnt++;
-    if (hw.regs[cnt].name == 0)
-      cnt = 0;
+    if (hw.regs[cnt].name == 0) cnt = 0;
     mq.topic = hw.regs[cnt].name;
     Register reg(mq.topic.c_str(), hw.regs[cnt].format);
     reg.value(*hw.regs[cnt].address);
@@ -348,16 +376,16 @@ extern "C" void app_main(void) {
 #endif
 
 #ifdef GPS
-  gps.init(); // no thread , driven from interrupt
+  gps.init();  // no thread , driven from interrupt
   gps >> mqtt.outgoing;
 #endif
 
 #ifdef REMOTE
   remote.init();
-  mqtt.fromTopic<bool>("remote/ledLeft") >> remote.ledLeft;   // timer driven
-  mqtt.fromTopic<bool>("remote/ledRight") >> remote.ledRight; // timer driven
+  mqtt.fromTopic<bool>("remote/ledLeft") >> remote.ledLeft;    // timer driven
+  mqtt.fromTopic<bool>("remote/ledRight") >> remote.ledRight;  // timer driven
   remote.buttonLeft >>
-      mqtt.toTopic<bool>("remote/buttonLeft"); // change and timer driven
+      mqtt.toTopic<bool>("remote/buttonLeft");  // change and timer driven
   remote.buttonRight >> mqtt.toTopic<bool>("remote/buttonRight");
   remote.potLeft >> mqtt.toTopic<int>("remote/potLeft");
   remote.potRight >> mqtt.toTopic<int>("remote/potRight");
@@ -367,7 +395,7 @@ extern "C" void app_main(void) {
   RotaryEncoder &rotaryEncoder = *new RotaryEncoder(
       thisThread, uextMotor.toPin(LP_SCL), uextMotor.toPin(LP_SDA));
   Motor &motor = *new Motor(
-      thisThread, &uextMotor); // cannot init as global var because of NVS
+      thisThread, &uextMotor);  // cannot init as global var because of NVS
   INFO(" init motor ");
   motor.watchdogTimer.interval(2000);
   mqtt.fromTopic<bool>("motor/watchdogReset") >> motor.watchdogReset;
@@ -459,5 +487,5 @@ extern "C" void app_main(void) {
 #ifdef STM32
   stm32Thread.start();
 #endif
-  thisThread.run(); // DON'T EXIT , local variable will be destroyed
+  thisThread.run();  // DON'T EXIT , local variable will be destroyed
 }
