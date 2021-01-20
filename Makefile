@@ -56,7 +56,7 @@ STEPPER :
 	
 STEPPER_SERVO :
 	touch main/main.cpp
-	make DEFINE=" -DSTEPPER_SERVO=1  -DHOSTNAME=drive"
+	make DEFINE=" -DSTEPPER_SERVO=1  -DHOSTNAME=drive -DMQTT_SERIAL"
 	
 HWTIMER :
 	touch main/main.cpp

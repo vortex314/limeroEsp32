@@ -1,4 +1,4 @@
-
+#include <limero.h>
 #include "Hardware.h"
 #include "LedBlinker.h"
 #include "esp_system.h"
@@ -96,7 +96,7 @@ MqttWifi mqtt(mqttThread);
 MqttOta mqttOta;
 #endif
 
-#ifdef RELAY
+#ifdef RELAY_TEST
 Connector uext(1);
 DigitalOut &relay1 = uext.getDigitalOut(LP_TXD);
 DigitalOut &relay2 = uext.getDigitalOut(LP_SCL);
@@ -193,6 +193,7 @@ Thread stm32Thread("stm32");
 Swd swd(stm32Thread, 13, 14, 12);
 #endif
 
+#ifdef ECHOTEST
 class EchoTest : public Actor {
  public:
   TimerSource trigger;
@@ -215,6 +216,7 @@ class EchoTest : public Actor {
 };
 
 EchoTest echoTest(thisThread);
+#endif
 
 extern "C" void app_main(void) {
   //    ESP_ERROR_CHECK(nvs_flash_erase());
@@ -240,12 +242,15 @@ extern "C" void app_main(void) {
   led.init();
 #ifdef MQTT_SERIAL
   mqtt.init();
+#ifdef ECHOTEST
   echoTest.init();
+#endif
 
 #else
   wifi.init();
   mqtt.init();
 
+#ifdef RELAY_TEST
   relay1.setMode(DigitalOut::DOUT_PULL_DOWN);
   relay2.setMode(DigitalOut::DOUT_PULL_DOWN);
   relay1.init();
@@ -263,7 +268,7 @@ extern "C" void app_main(void) {
       relay2.write(0);
     }
   };
-
+#endif
   wifi.connected >> mqtt.wifiConnected;
   //-----------------------------------------------------------------  WIFI
   // props

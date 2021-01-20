@@ -19,9 +19,9 @@ StepperServo::StepperServo(Thread &thr, Connector &uext, As5600 &as5600)
       Device(thr),
       _as5600(as5600),
       _uext(uext),
-      _pulser(uext.toPin(LP_TXD)),
+      _pulser(uext.toPin(LP_SDA)),
       _pinDir(uext.getDigitalOut(LP_SCL)),
-      _pinEnable(uext.getDigitalOut(LP_SDA)),
+      _pinEnable(uext.getDigitalOut(LP_TXD)),
       _measureTimer(thr,  100, true),
       _controlTimer(thr,  CONTROL_INTERVAL_MS, true),
       _reportTimer(thr,  500, true),
@@ -45,12 +45,12 @@ void StepperServo::init() {
   });
 
   _pulser.init();
-  _pinDir.setMode(DigitalOut::DOUT_PULL_UP);
-  _pinEnable.setMode(DigitalOut::DOUT_PULL_UP);
+  _pinDir.setMode(DigitalOut::DOUT_PULL_DOWN);
+  _pinEnable.setMode(DigitalOut::DOUT_PULL_DOWN);
   _pinDir.init();
   _pinDir.write(1);
   _pinEnable.init();
-  _pinEnable.write(0);
+  _pinEnable.write(1);
 
   angleTarget >> ([&](const int &angle) {
     if (angle < -90) angleTarget = -90;
