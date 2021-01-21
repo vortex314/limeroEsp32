@@ -45,8 +45,8 @@ void StepperServo::init() {
   });
 
   _pulser.init();
-  _pinDir.setMode(DigitalOut::DOUT_PULL_DOWN);
-  _pinEnable.setMode(DigitalOut::DOUT_PULL_DOWN);
+  _pinDir.setMode(DigitalOut::DOUT_PULL_UP);
+  _pinEnable.setMode(DigitalOut::DOUT_PULL_UP);
   _pinDir.init();
   _pinDir.write(1);
   _pinEnable.init();
@@ -75,11 +75,11 @@ void StepperServo::init() {
  //       if (!_pulser.busy()) {  // previous stepped stopped
           if (delta < 0) {
             _direction = -1;
-            _pinDir.write(0);
+            _pinDir.write(1);
             _pulser.ticks = -delta;
           } else if ( delta > 0) {
             _direction = 1;
-            _pinDir.write(1);
+            _pinDir.write(0);
             _pulser.ticks = delta;
           } else {
             stopStepper();

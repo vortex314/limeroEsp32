@@ -19,7 +19,7 @@ class StepperServo : public Actor, public Device {
   TimerSource _measureTimer;  // ADC multi sample and median
   TimerSource _controlTimer;  // PID loop interval
   TimerSource _reportTimer;   // report to MQTT
-  MedianFilter<int, 10> _potFilter;
+  //MedianFilter<int, 10> _potFilter;
   float _error = 0;
   float _errorPrior = 0;
   bool _measurementError = false;
