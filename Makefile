@@ -14,7 +14,7 @@ SERIAL_BAUD = 115200
 ESPBAUD = 921600
 IDF_PATH ?= /home/lieven/esp/esp-idf
 WORKSPACE := /home/lieven/workspace
-DEFINES := -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD}  -DESP32_IDF=1 $(DEFINE) -DMQTT_HOST=limero.ddns.net -DMQTT_PORT=1883 
+DEFINES := -DWIFI_SSID=${WIFI_SSID} -DWIFI_PASS=${WIFI_PASS}  -DESP32_IDF=1 $(DEFINE) -DMQTT_HOST=limero.ddns.net -DMQTT_PORT=1883 
 
 CPPFLAGS +=  $(DEFINES)  
 CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
@@ -22,7 +22,7 @@ CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/i
 CXXFLAGS +=  $(DEFINES) 
 CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  -I$(WORKSPACE)/limero/inc
-CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections -std=c++11 -fno-exceptions -lstdc++ -faligned-new
+CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections -std=gnu++11 -fno-exceptions -lstdc++ -faligned-new
 
 EXTRA_COMPONENT_DIRS = mqtt esp-mqtt $(WORKSPACE)/limero/esp32_idf  $(WORKSPACE)/limero/common
 # LDFLAGS += -Wl,-latomic 

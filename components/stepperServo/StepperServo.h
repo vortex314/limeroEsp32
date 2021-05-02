@@ -10,7 +10,7 @@
 
 class StepperServo : public Actor, public Device {
   As5600 &_as5600;
-  Connector &_uext;
+  Uext &_uext;
   Pulser _pulser;
   DigitalOut &_pinDir;
   DigitalOut &_pinEnable;
@@ -32,7 +32,7 @@ class StepperServo : public Actor, public Device {
   ValueFlow<int> stepTarget = 0;
   ValueFlow<bool> isDriving = false;
   ValueFlow<int> stepDirection;
-  StepperServo(Thread &thr, Connector &uext, As5600 &as5600);
+  StepperServo(Thread &thr, Uext &uext, As5600 &as5600);
   ~StepperServo();
   void init();
   bool measureAngle();

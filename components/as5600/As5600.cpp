@@ -1,7 +1,7 @@
 #include <As5600.h>
 
 As5600::As5600(I2C& i2c) : _i2c(i2c) { _failureHandler = 0; }
-As5600::As5600(Connector& connector) : _i2c(connector.getI2C()) {}
+As5600::As5600(Uext& connector) : _i2c(connector.getI2C()) {}
 int As5600::init() {
   int rc = _i2c.init();
   if (rc != 0) {
@@ -93,4 +93,4 @@ uint16_t As5600::mang() { return readReg16(AS_MANG); }
 uint16_t As5600::conf() { return readReg16(AS_CONF); }
 uint16_t As5600::magnitude() { return readReg16(AS_MAGNITUDE); }
 uint8_t As5600::agc() { return readReg8(AS_AGC); }
-int As5600::degrees() { return ((angle() * 360.0) / 4096) -180; }
+int As5600::degrees() { return ((angle() * 360.0) / 4096) - 180; }

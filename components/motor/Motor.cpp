@@ -54,7 +54,7 @@ Motor::Motor(Thread& thr,uint32_t pinLeftIS, uint32_t pinRightIS,
 	});
 }
 
-Motor::Motor(Thread& thr,Connector* uext)
+Motor::Motor(Thread& thr,Uext* uext)
 	: Motor(thr,uext->toPin(LP_RXD), uext->toPin(LP_MISO),
 	        uext->toPin(LP_MOSI), uext->toPin(LP_CS),
 	        uext->toPin(LP_TXD), uext->toPin(LP_SCK)) {}

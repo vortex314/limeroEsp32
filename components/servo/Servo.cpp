@@ -27,7 +27,7 @@ Servo::Servo(Thread& thr,uint32_t pinPot, uint32_t pinIS,
 	_bts7960.setMaxPwm(MAX_PWM);
 }
 
-Servo::Servo(Thread& thr,Connector* uext) : Servo(
+Servo::Servo(Thread& thr,Uext* uext) : Servo(
 	    thr,
 	    uext->toPin(LP_RXD), //only ADC capable pins
 	    uext->toPin(LP_MISO), // "

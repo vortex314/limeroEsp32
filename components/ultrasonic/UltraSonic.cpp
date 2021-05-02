@@ -1,6 +1,6 @@
 #include "UltraSonic.h"
 
-UltraSonic::UltraSonic(Thread& thr,Connector* connector)
+UltraSonic::UltraSonic(Thread& thr,Uext* connector)
     : Actor(thr),Sink(3),_pollTimer(thr, 1000, true)
 {
     _connector = connector;

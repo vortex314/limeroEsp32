@@ -6,12 +6,12 @@
 #include <Mqtt.h>
 
 class Neo6m : public Actor,public Source<MqttMessage> {
-		Connector* _connector;
+		Uext* _connector;
 		UART& _uart;
 		static void onRxd(void*);
 		std::string _line;
 	public:
-		Neo6m(Thread& thr,Connector* connector);
+		Neo6m(Thread& thr,Uext* connector);
 		virtual ~Neo6m();
 		void init();
 		void handleRxd();

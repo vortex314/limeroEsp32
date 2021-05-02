@@ -14,7 +14,7 @@
 #define TEETH_BIG_GEAR 82.0
 #define TEETH_SMALL_GEA 10.0
 
-StepperServo::StepperServo(Thread &thr, Connector &uext, As5600 &as5600)
+StepperServo::StepperServo(Thread &thr, Uext &uext, As5600 &as5600)
     : Actor(thr),
       Device(thr),
       _as5600(as5600),

@@ -27,7 +27,7 @@ class HardwareTester
     mcpwm_timer_t timer_num = MCPWM_TIMER_0;
     esp_err_t rc ;
     uint32_t mcpwm_intr_status;
-    Connector _uext;
+    Uext _uext;
 
 public:
     HardwareTester();

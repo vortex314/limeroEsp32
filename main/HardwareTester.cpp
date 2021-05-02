@@ -42,7 +42,7 @@ Reg HardwareTester::regs[] = {
     {NULL, NULL, NULL, NULL}
     //   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 };
-Connector uext1(1), uext2(2);
+Uext uext1(1), uext2(2);
 
 HardwareTester::HardwareTester() : _uext(uext1) {
   mcpwm_num = MCPWM_UNIT_0;  // MCPWM_UNIT_1

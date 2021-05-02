@@ -128,7 +128,7 @@ public:
     uint64_t _interruptStart;
     DWM1000_Tag(Thread& thr,Spi& spi, DigitalIn& irq, DigitalOut& reset,
                 uint16_t shortAddress, uint8_t longAddress[6]);
-    DWM1000_Tag(Thread&, Connector*  );
+    DWM1000_Tag(Thread&, Uext*  );
     ~DWM1000_Tag();
     void mode(uint32_t m);
     void init();

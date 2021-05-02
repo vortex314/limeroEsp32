@@ -153,7 +153,7 @@ DWM1000_Tag::DWM1000_Tag(Thread& thr, Spi& spi, DigitalIn& irq,
     _count = 0;
 }
 
-DWM1000_Tag::DWM1000_Tag(Thread& thread,Connector* connector )
+DWM1000_Tag::DWM1000_Tag(Thread& thread,Uext* connector )
     : DWM1000_Tag(thread, connector->getSPI(), connector->getDigitalIn(LP_RXD),
                   connector->getDigitalOut(LP_TXD), 0xABCD,
                   (uint8_t*)"ABCDEF") {}

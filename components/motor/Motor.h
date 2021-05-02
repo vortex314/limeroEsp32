@@ -40,7 +40,7 @@ class Motor : public Actor, public Device {
 		ValueFlow<int> rpmMeasured2=0;
 		ValueFlow<bool> keepGoing=true;
 
-		Motor(Thread& thr,Connector* connector);
+		Motor(Thread& thr,Uext* connector);
 		Motor(Thread& thr,uint32_t pinLeftIS, uint32_t pinrightIS, uint32_t pinLeftEnable,
 		      uint32_t pinRightEnable, uint32_t pinLeftPwm,
 		      uint32_t pinRightPwm);

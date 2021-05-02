@@ -41,7 +41,7 @@ class BTS7960
     uint32_t MAX_PWM=80;
 
 public:
-    BTS7960(Connector* conn);
+    BTS7960(Uext* conn);
     BTS7960(uint32_t pinLeftIS, uint32_t pinrightIS, uint32_t pinLeftEnable,
             uint32_t pinRightEnable, uint32_t pinLeftPwm,
             uint32_t pinRightPwm);

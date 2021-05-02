@@ -8,14 +8,14 @@
 
 class Compass : public Actor,public Device
 {
-    Connector& _uext;
+    Uext& _uext;
     HMC5883L* _hmc;
     TimerSource measureTimer;
     struct Vector<float> _v;
 
 public:
     ValueSource<int32_t> x,y,z,status;
-    Compass(Thread&,Connector&);
+    Compass(Thread&,Uext&);
     virtual ~Compass() ;
     void init();
 };
