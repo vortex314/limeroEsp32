@@ -14,7 +14,7 @@ class HCSR04 {
 
 
 	public:
-		HCSR04(Connector&);
+		HCSR04(Uext&);
 		HCSR04(DigitalOut&, DigitalIn&);
 		Erc init();
 		Erc trigger();

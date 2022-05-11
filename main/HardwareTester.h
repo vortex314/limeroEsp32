@@ -27,12 +27,12 @@ class HardwareTester
     mcpwm_timer_t timer_num = MCPWM_TIMER_0;
     esp_err_t rc ;
     uint32_t mcpwm_intr_status;
-    Connector _uext;
+    Uext _uext;
 
 public:
     HardwareTester();
     ~HardwareTester();
-    ValueSource<uint32_t> capts ;
+    ValueFlow<uint32_t> capts ;
     static Reg regs[];
     uint32_t captureNumberOfPulse=500;
     uint32_t pwmFrequency=1000;

@@ -35,7 +35,7 @@ class As5600 {
   typedef void (*FailureHandler)(void*, const char*);
 
   As5600(I2C&);
-  As5600(Connector&);
+  As5600(Uext&);
   void onFailure(void*, FailureHandler);
   int init();
   uint16_t angle();

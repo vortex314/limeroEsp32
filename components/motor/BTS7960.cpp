@@ -148,25 +148,25 @@ BTS7960::BTS7960(uint32_t pinLeftIS, uint32_t pinRightIS,
   _mcpwm_num = MCPWM_UNIT_0;
 }
 
-BTS7960::BTS7960(Connector *uext)
+BTS7960::BTS7960(Uext *uext)
     : BTS7960(uext->toPin(LP_RXD), uext->toPin(LP_MISO), uext->toPin(LP_MOSI),
               uext->toPin(LP_CS), uext->toPin(LP_TXD), uext->toPin(LP_SCK)) {
   /*   INFO(" Drive/Sensor = UEXT GPIO ");
-     INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_RXD),
+     INFO("         L_IS = %s GPIO_%d ", Uext::uextPin(LP_RXD),
           uext->toPin(LP_RXD));
-     INFO("         R_IS = %s GPIO_%d ", Connector::uextPin(LP_MISO),
+     INFO("         R_IS = %s GPIO_%d ", Uext::uextPin(LP_MISO),
           uext->toPin(LP_MISO));
-     INFO("         L_EN = %s GPIO_%d ", Connector::uextPin(LP_MOSI),
+     INFO("         L_EN = %s GPIO_%d ", Uext::uextPin(LP_MOSI),
           uext->toPin(LP_MOSI));
-     INFO("         R_EN = %s GPIO_%d ", Connector::uextPin(LP_CS),
+     INFO("         R_EN = %s GPIO_%d ", Uext::uextPin(LP_CS),
           uext->toPin(LP_CS));
-     INFO("        L_PWM = %s GPIO_%d ", Connector::uextPin(LP_TXD),
+     INFO("        L_PWM = %s GPIO_%d ", Uext::uextPin(LP_TXD),
           uext->toPin(LP_TXD));
-     INFO("        R_PWM = %s GPIO_%d ", Connector::uextPin(LP_SCK),
+     INFO("        R_PWM = %s GPIO_%d ", Uext::uextPin(LP_SCK),
           uext->toPin(LP_SCK));
-     INFO(" Tacho Chan A = %s GPIO_%d ", Connector::uextPin(LP_SCL),
+     INFO(" Tacho Chan A = %s GPIO_%d ", Uext::uextPin(LP_SCL),
           uext->toPin(LP_SCL));
-     INFO(" Tacho Chan B = %s GPIO_%d ", Connector::uextPin(LP_SDA),
+     INFO(" Tacho Chan B = %s GPIO_%d ", Uext::uextPin(LP_SDA),
           uext->toPin(LP_SDA));*/
 }
 

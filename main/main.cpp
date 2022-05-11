@@ -98,7 +98,7 @@ MqttOta mqttOta;
 #endif
 
 #ifdef RELAY_TEST
-Connector uext(1);
+Uext uext(1);
 DigitalOut &relay1 = uext.getDigitalOut(LP_TXD);
 DigitalOut &relay2 = uext.getDigitalOut(LP_SCL);
 TimerSource ticker(thisThread, 5000, true);
@@ -107,13 +107,13 @@ TimerSource ticker(thisThread, 5000, true);
 
 #ifdef US
 #include <UltraSonic.h>
-Connector uextUs(US);
+Uext uextUs(US);
 UltraSonic ultrasonic(thisThread, &uextUs);
 #endif
 
 #ifdef GPS
 #include <Neo6m.h>
-Connector uextGps(GPS);
+Uext uextGps(GPS);
 Neo6m gps(thisThread, &uextGps);
 #endif
 
@@ -129,12 +129,12 @@ Remote remote(thisThread);
 #ifdef MOTOR
 #include <Motor.h>
 #include <RotaryEncoder.h>
-Connector uextMotor(MOTOR);
+Uext uextMotor(MOTOR);
 #endif
 
 #ifdef SERVO
 #include <Servo.h>
-Connector uextServo(SERVO);
+Uext uextServo(SERVO);
 #endif
 
 // ---------------------------------------------- system properties
@@ -152,16 +152,16 @@ HardwareTester hw;
 
 #ifdef STEPPER
 #include <Stepper.h>
-Connector uextStepper(STEPPER);
+Uext uextStepper(STEPPER);
 Stepper stepper(workerThread, uextStepper);
 #endif
 
 #ifdef STEPPER_SERVO
 #include <As5600.h>
 #include <StepperServo.h>
-Connector uextAs5600(2);
+Uext uextAs5600(2);
 As5600 as5600(uextAs5600);
-Connector uextStepperServo(STEPPER_SERVO);
+Uext uextStepperServo(STEPPER_SERVO);
 StepperServo stepperServo(workerThread, uextStepperServo, as5600);
 #endif
 
@@ -172,7 +172,7 @@ HwTimer hwTimer(32);
 
 #ifdef COMPASS
 #include <Compass.h>
-Connector uextCompass(COMPASS);
+Uext uextCompass(COMPASS);
 Compass compass(workerThread, uextCompass);
 #endif
 
@@ -475,7 +475,7 @@ extern "C" void app_main(void) {
 
 #ifdef DWM1000_TAG
   DWM1000_Tag &tag =
-      *(new DWM1000_Tag(workerThread, new Connector(DWM1000_TAG)));
+      *(new DWM1000_Tag(workerThread, new Uext(DWM1000_TAG)));
   tag.preStart();
   tag.mqttMsg >> mqtt.outgoing;
   //    tag.blink >> ledBlue.pulse;

@@ -1,6 +1,6 @@
 #include "Neo6m.h"
 
-Neo6m::Neo6m(Thread& thr,Connector* connector)
+Neo6m::Neo6m(Thread& thr,Uext* connector)
 	: Actor(thr),_connector(connector),_uart(connector->getUART()) {
 }
 

@@ -52,7 +52,7 @@ public:
     ValueFlow<float> proportional=0.0,integral=0.0,derivative=0.0;
     ValueFlow<float> current=0.0;
     ValueFlow<bool> keepGoing;
-    Servo(Thread& thr,Connector* connector);
+    Servo(Thread& thr,Uext* connector);
     Servo(Thread& thr,uint32_t pinPot, uint32_t pinIS,
           uint32_t pinLeftEnable, uint32_t pinRightEnable,
           uint32_t pinLeftPwm, uint32_t pinRightPwm);

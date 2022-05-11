@@ -21,7 +21,7 @@ class LogIsr : public Actor {
 
 public:
   TimerSource logTimer;
-  Sink<std::string> logs;
+  QueueFlow<std::string> logs;
   static void log(const char *str);
   static void log(const char *file, uint32_t line, const char *fmt, ...);
   static bool _debug;

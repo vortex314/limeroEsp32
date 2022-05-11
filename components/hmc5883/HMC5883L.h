@@ -86,7 +86,7 @@ class HMC5883L
 {
 public:
     HMC5883L(I2C& i2c);
-    HMC5883L(Connector& i2c);
+    HMC5883L(Uext& i2c);
     bool init();
 
     Vector<int16_t> readRaw(void);

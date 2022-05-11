@@ -8,8 +8,8 @@ public:
   typedef enum { STOPPED, RUNNING, PAUSED } DeviceState;
   TimerSource watchdogTimer;
 
-  ValueSource<int> deviceState = PAUSED;
-  ValueSource<std::string> deviceMessage;
+  ValueFlow<int> deviceState = PAUSED;
+  ValueFlow<std::string> deviceMessage;
   ValueFlow<bool> watchdogReset = true;
   Device(Thread &thr);
   ~Device();

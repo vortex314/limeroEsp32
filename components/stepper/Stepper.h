@@ -5,7 +5,7 @@
 #include <limero.h>
 
 class Stepper : public Actor, public Device {
-  Connector &_uext;
+  Uext &_uext;
   Pulser _pulser;
   DigitalOut &_pinDir;
   DigitalOut &_pinEnable;
@@ -20,7 +20,7 @@ class Stepper : public Actor, public Device {
   ValueFlow<int> stepTarget = 0;
   ValueFlow<int> stepMeasured = 0;
   Sink<std::string> msg;
-  Stepper(Thread &thr, Connector &uext);
+  Stepper(Thread &thr, Uext &uext);
   ~Stepper();
   void init();
   void holdAngle();

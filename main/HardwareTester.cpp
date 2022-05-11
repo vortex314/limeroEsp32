@@ -42,7 +42,7 @@ Reg HardwareTester::regs[] = {
     {NULL, NULL, NULL, NULL}
     //   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 };
-Connector uext1(1), uext2(2);
+Uext uext1(1), uext2(2);
 
 HardwareTester::HardwareTester() : _uext(uext1) {
   mcpwm_num = MCPWM_UNIT_0;  // MCPWM_UNIT_1
@@ -85,7 +85,7 @@ int HardwareTester::captureTest() {
     WARN("mcpwm_gpio_init()=%d", rc);
   }
 
-  rc = mcpwm_capture_enable(mcpwm_num, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
+  rc = mcpwm_capture_enable_channel(mcpwm_num, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
                             captureNumberOfPulse);
   if (rc != ESP_OK) {
     WARN("mcpwm_capture_enable()=%d", rc);

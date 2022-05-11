@@ -44,13 +44,13 @@ void LogIsr::init() {
       char ch = _buffer.front();
       _buffer.pop_front();
       if (ch == 0) {
-        logger.serialLog((char*)line.c_str(), line.length());
+        logger.logf((char*)line.c_str());
         line.clear();
       } else {
         line += ch;
       }
     }
     if (line.length() != 0)
-      logger.serialLog((char*)line.c_str(), line.length());
+      logger.logf((char*)line.c_str());
   });
 }

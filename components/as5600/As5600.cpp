@@ -1,7 +1,8 @@
 #include <As5600.h>
+#include <StringUtility.h>
 
 As5600::As5600(I2C& i2c) : _i2c(i2c) { _failureHandler = 0; }
-As5600::As5600(Connector& connector) : _i2c(connector.getI2C()) {}
+As5600::As5600(Uext& connector) : _i2c(connector.getI2C()) {}
 int As5600::init() {
   int rc = _i2c.init();
   if (rc != 0) {
@@ -23,8 +24,7 @@ void As5600::onFailure(void* ctx, FailureHandler fh) {
 
 void As5600::invokeFailure(const char* s, int d) {
   if (_failureHandler) {
-    std::string str;
-    string_format(str, " failure : %s =>  erc : %d ", s, d);
+    std::string str = stringFormat( " failure : %s =>  erc : %d ", s, d);
     _failureHandler(_failureContext, str.c_str());
   } else {
     ERROR(" AS5600 failure %s error %d = 0x%x", s, d, d);

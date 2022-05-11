@@ -1,6 +1,6 @@
 #include "Compass.h"
 
-Compass::Compass(Thread& thread,Connector& connector) :
+Compass::Compass(Thread& thread,Uext& connector) :
     Actor(thread),
     Device(thread),
     _uext(connector),

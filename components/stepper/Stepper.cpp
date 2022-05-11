@@ -3,7 +3,7 @@
 #define MICROSTEP 1
 #define STEPS_PER_DEG (200 * MICROSTEP * 20) / 360
 
-Stepper::Stepper(Thread &thr, Connector &uext)
+Stepper::Stepper(Thread &thr, Uext &uext)
     : Actor(thr),
       Device(thr),
       _uext(uext),

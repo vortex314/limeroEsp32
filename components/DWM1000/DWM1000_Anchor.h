@@ -52,8 +52,8 @@ public:
     TimerSource checkTimer;
     TimerSource logTimer;
     TimerSource pulseTimer;
-    ValueSource<bool> poll;
-    ValueSource<MqttMessage> mqttMsg;
+    ValueFlow<bool> poll;
+    ValueFlow<MqttMessage> mqttMsg;
     RefSource<uint32_t> polls;
     RefSource<uint32_t> blinks;
     RefSource<uint32_t> finals;
@@ -62,7 +62,7 @@ public:
     RefSource<uint32_t> timeouts;
     RefSource<uint32_t> interruptCount;
     RefSource<float> distanceRef;
-    ValueSource<uint16_t> address;
+    ValueFlow<uint16_t> address;
     static DWM1000_Anchor* _anchor;
     uint64_t _interruptStart;
     uint32_t _interrupts;

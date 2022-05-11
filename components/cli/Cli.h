@@ -13,7 +13,7 @@ class Cli {
   int _cursorIndex = 0;
 
   std::string _rxd;
-  LogFunction _logFunction;
+  LogWriter _logFunction;
   typedef enum {
     TK_CHAR,
     TK_BS,
@@ -49,7 +49,7 @@ public:
   bool rightCursor();
   bool leftCursor();
   void setCursor();
-  static void writer(char *s, uint32_t length);
+  static void writer(uint8_t *s, uint32_t length);
   void write(const char *);
   std::string &line();
 };

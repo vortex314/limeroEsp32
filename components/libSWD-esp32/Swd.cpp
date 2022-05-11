@@ -1,7 +1,7 @@
 #include <Swd.h>
 
 Swd::Swd(Thread& thr, uint32_t pinSwdio, uint32_t pinSwclk, uint32_t pinSwo)
-    : Actor(thr),ota(10) {
+    : Actor(thr), ota(10) {
   BZERO(pinsSPI);
   pinsSPI.mosi_io_num = pinSwdio;  // SWD I/O
   pinsSPI.miso_io_num = pinSwo;    // not connected
@@ -50,15 +50,15 @@ Swd::Swd(Thread& thr, uint32_t pinSwdio, uint32_t pinSwclk, uint32_t pinSwo)
 }
 
 void Swd::init() {
-  ota.sync([&](const MqttBlock& msg) {
+  ota >> [&](const MqttBlock& msg) {
     if (msg.offset == 0) startOta(msg);
     writeOta(msg);
     if (msg.offset + msg.length == msg.total) stopOta(msg);
-  });
+  };
 }
 
 void Swd::test() {
-  uint32_t address = 0x08000000; // 0x20001000;  // Example address
+  uint32_t address = 0x08000000;  // 0x20001000;  // Example address
   INFO("[libswd_memap_init]");
   auto memmap_res = libswd_memap_init(libswdctx, LIBSWD_OPERATION_EXECUTE);
   if (LIBSWD_OK != memmap_res) {
@@ -76,8 +76,10 @@ void Swd::test() {
   }
 
   char stringBuff[128];
-  sprintf(stringBuff, "MEMAP read at %08X: %02X %02X %02X %02X %02X %02X %02X %02X", address,
-          buff[0], buff[1], buff[2], buff[3],buff[4], buff[5], buff[6], buff[7]);
+  sprintf(stringBuff,
+          "MEMAP read at %08X: %02X %02X %02X %02X %02X %02X %02X %02X",
+          address, buff[0], buff[1], buff[2], buff[3], buff[4], buff[5],
+          buff[6], buff[7]);
   INFO("%s", stringBuff);
 
   int idcode = 0;
