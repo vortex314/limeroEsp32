@@ -15,8 +15,7 @@ set(ARDUINOJSON /home/lieven/workspace/ArduinoJson )
 set(IDF_PATH  /home/lieven/esp/esp-idf)
 set(IDF_CCACHE_ENABLE 1)
 
-set(DEFINES -DWIFI_SSID=${WIFI_SSID} -DWIFI_PASS=${WIFI_PASS}  -DESP32_IDF=1 $(DEFINE) -DMQTT_HOST=limero.ddns.net -DMQTT_PORT=1883 
-)
+set(TARGET AS5600_TEST) # AS5600 I2C test to evaluate the AS5600 module
 
 include_directories( main 
     ${LIMERO}/inc  
@@ -25,6 +24,7 @@ include_directories( main
      )
 
 add_definitions(
+    -D${TARGET}
     -DWIFI_PASS=${WIFI_PASS} 
     -DWIFI_SSID=${WIFI_SSID} 
     -DMQTT_HOST=limero.ddns.net 
@@ -35,6 +35,7 @@ add_definitions(
     -fno-rtti 
     -ffunction-sections 
     -fdata-sections 
+    -Wl,--gc-sections
     -std=gnu++11 
     -fno-exceptions 
     -lstdc++ 

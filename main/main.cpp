@@ -1,3 +1,4 @@
+#ifdef MAIN_ANY
 #include <limero.h>
 
 #include "Hardware.h"
@@ -495,3 +496,5 @@ extern "C" void app_main(void) {
 #endif
   thisThread.run();  // DON'T EXIT , local variable will be destroyed
 }
+
+#endif

@@ -21,7 +21,8 @@
                 "STEPPER_SERVO",
                 "HOSTNAME=drive",
                 "COMMAND",
-                "MQTT_PORT=1883"
+                "MQTT_PORT=1883",
+                "MAIN_I2C_SCANNER"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",

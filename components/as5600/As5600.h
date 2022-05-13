@@ -1,9 +1,9 @@
 #ifndef _AS5600_H_
 #define _AS5600_H_
 #include <Hardware.h>
-#include <limero.h>
 #include <Register.h>
 #include <errno.h>
+#include <limero.h>
 
 #define I2C_AS5600 0x36
 
