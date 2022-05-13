@@ -23,7 +23,7 @@
 
 #define AS_INVALID 32767
 
-class As5600 {
+class As5600 : public Driver {
   I2C& _i2c;
   uint8_t readReg8(uint8_t address);
   uint16_t readReg16(uint8_t address);
@@ -32,11 +32,8 @@ class As5600 {
   void writeReg16(uint8_t address, uint16_t value);
 
  public:
-  typedef void (*FailureHandler)(void*, const char*);
-
   As5600(I2C&);
   As5600(Uext&);
-  void onFailure(void*, FailureHandler);
   int init();
   uint16_t angle();
   uint16_t rawAngle();
@@ -56,10 +53,5 @@ class As5600 {
   void burn(uint8_t);
 
   int degrees();
-
- private:
-  void invokeFailure(const char*, int);
-  void* _failureContext;
-  FailureHandler _failureHandler = 0;
 };
 #endif

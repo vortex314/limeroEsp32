@@ -22,7 +22,7 @@
                 "HOSTNAME=drive",
                 "COMMAND",
                 "MQTT_PORT=1883",
-                "MAIN_I2C_SCANNER"
+                "MAIN_AS5600_TEST"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",

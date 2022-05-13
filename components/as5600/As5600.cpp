@@ -1,66 +1,34 @@
 #include <As5600.h>
 #include <StringUtility.h>
-
-As5600::As5600(I2C& i2c) : _i2c(i2c) { _failureHandler = 0; }
+#define CHECK(xxx)          \
+  {                         \
+    int erc = xxx;          \
+    if (erc) {              \
+      failure({erc, #xxx}); \
+      return erc;           \
+    }                       \
+  }
+As5600::As5600(I2C& i2c) : _i2c(i2c) {}
 As5600::As5600(Uext& connector) : _i2c(connector.getI2C()) {}
 int As5600::init() {
-  int rc = _i2c.init();
-  if (rc != 0) {
-    invokeFailure("I2C init ", rc);
-    return rc;
-  }
-  rc = _i2c.setSlaveAddress(I2C_AS5600);
-  if (rc != 0) {
-    invokeFailure("I2C setSlaveAddress ", rc);
-    return rc;
-  }
-  return rc;
-}
-
-void As5600::onFailure(void* ctx, FailureHandler fh) {
-  _failureContext = ctx;
-  _failureHandler = fh;
-};
-
-void As5600::invokeFailure(const char* s, int d) {
-  if (_failureHandler) {
-    std::string str = stringFormat( " failure : %s =>  erc : %d ", s, d);
-    _failureHandler(_failureContext, str.c_str());
-  } else {
-    ERROR(" AS5600 failure %s error %d = 0x%x", s, d, d);
-  }
+  CHECK(_i2c.setClock(100000));
+  CHECK(_i2c.init());
+  CHECK(_i2c.setSlaveAddress(I2C_AS5600));
+  return 0;
 }
 
 uint8_t As5600::readReg8(uint8_t address) {
   uint8_t reg;
-  int rc = _i2c.write(address);
-  if (rc != 0) {
-    invokeFailure("I2C write ", rc);
-    return 0;
-  }
-  rc = _i2c.read(&reg, 1);
-  if (rc != 0) {
-    invokeFailure("I2C read ", rc);
-    return 0;
-  }
+  CHECK(_i2c.write(address));
+  CHECK(_i2c.read(&reg, 1));
   return reg;
 }
 
 uint16_t As5600::readReg16(uint8_t address) {
   uint8_t reg[2];
-  int rc = _i2c.write(address);
-  if (rc != 0) {
-    invokeFailure("I2C write ", rc);
-    return 0;
-  }
-  rc = _i2c.read(reg, 2);
-  if (rc != 0) {
-    invokeFailure("I2C read ", rc);
-    return 0;
-  }
-  uint16_t value = reg[0] << 8;
-  value += reg[1];
-  return value;
+  CHECK(_i2c.write(address));
+  CHECK(_i2c.read(reg, 2));
+  return (reg[0] << 8) | reg[1];
 }
 
 void As5600::writeReg8(uint8_t address, uint8_t value) {
@@ -69,7 +37,7 @@ void As5600::writeReg8(uint8_t address, uint8_t value) {
   reg[1] = value;
   int rc = _i2c.write(reg, 2);
   if (rc != 0) {
-    invokeFailure("I2C write ", rc);
+    failure({rc, "i2c.write"});
   }
 }
 
@@ -80,7 +48,7 @@ void As5600::writeReg16(uint8_t address, uint16_t value) {
   reg[2] = value & 0xFF;
   int rc = _i2c.write(reg, 3);
   if (rc != 0) {
-    invokeFailure("I2C write ", rc);
+    failure({rc, "i2c.write"});
   }
 }
 

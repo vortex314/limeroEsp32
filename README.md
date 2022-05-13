@@ -85,3 +85,8 @@ I2MzE3MzI3OV19
 
 
 12 directories
+
+SOme setup instructions
+```
+make menuconfig #enable CONFIG_FREERTOS_ENABLE_BACKWARD_COMPATIBILITY
+python3 -m pip install pyparsing
