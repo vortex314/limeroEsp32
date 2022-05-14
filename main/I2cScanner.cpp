@@ -1,11 +1,14 @@
 #ifdef MAIN_I2C_SCANNER
 #include <Hardware.h>
+#include <LedBlinker.h>
 #include <Log.h>
 #include <limero.h>
 Log logger;
 extern "C" void app_main() {
   Thread workerThread("worker");
   Uext uext(1);
+  LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
+  ledBlinker.init();
   I2C& i2c = uext.getI2C();
   i2c.setClock(100000);
   i2c.init();

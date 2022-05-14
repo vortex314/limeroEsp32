@@ -15,8 +15,8 @@ set(LIMERO /home/lieven/workspace/limero )
 set(ARDUINOJSON /home/lieven/workspace/ArduinoJson )
 set(IDF_PATH  /home/lieven/esp/esp-idf)
 
-# set(TARGET MAIN_I2C_SCANNER) # SCAN I2C BUS for devices
-set(TARGET MAIN_AS5600_TEST) # AS5600 I2C test to evaluate the AS5600 module
+set(TARGET MAIN_I2C_SCANNER) # SCAN I2C BUS for devices
+# set(TARGET MAIN_AS5600_TEST) # AS5600 I2C test to evaluate the AS5600 module
 
 include_directories( main 
     ${LIMERO}/inc  

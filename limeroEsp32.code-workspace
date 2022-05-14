@@ -77,7 +77,8 @@
 			"*.ipp": "cpp",
 			"*.inc": "cpp",
 			"*.contiki": "cpp",
-			"*.def": "cpp"
+			"*.def": "cpp",
+			"forward_list": "cpp"
 		}
 	}
 }
