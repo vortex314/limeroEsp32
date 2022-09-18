@@ -5,11 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/main",
                 "${workspaceFolder}/components/**",
-                "${workspaceFolder}/build/include",
                 "${workspaceFolder}/../limero/inc",
                 "${workspaceFolder}/../ArduinoJson/src/",
                 "${HOME}/esp/esp-idf/**",
-                "/home/lieven/esp/esp-idf/components/freertos/include/freertos",
                 "${HOME}/esp/esp-idf/components/**",
                 "${HOME}/esp/xtensa-esp32-elf/**",
                 "${HOME}/esp/esp-idf/components/wpa_supplicant/port/include/",
@@ -22,13 +20,14 @@
                 "HOSTNAME=drive",
                 "COMMAND",
                 "MQTT_PORT=1883",
-                "MAIN_AS5600_TEST"
+                "MAIN_BATTERY"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++11",
             "intelliSenseMode": "clang-x64",
-            "forcedInclude": []
+            "forcedInclude": [],
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4
