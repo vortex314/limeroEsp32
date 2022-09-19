@@ -3,6 +3,29 @@
 #include <StringUtility.h>
 #include <Udp.h>
 
+Thread udpThread("udpThread");
+
+Udp::Udp(Thread &thr)
+    : Actor(thr), _recvTimer(udpThread, 1000, true, "recvTimer") {
+  _rxd.async(thr);
+  _txd >> [&](const Bytes &in) {
+    DEBUG("UDP TXD[%d] to %s ", in.size(), _dst.toString().c_str());
+    UdpMsg msg;
+    msg.dst = _dst;
+    msg.message = in;
+    send(msg);
+  };
+  _recvTimer >> [this](const TimerMsg &) {
+    UdpMsg msg;
+    if (receive(msg) > 0) {
+      _rxd.on(msg.message);
+    }
+  };
+  udpThread.start();
+}
+
+void Udp::dst(const char *ip) { UdpAddress::fromUri(_dst, ip); }
+
 int Udp::init() {
   struct sockaddr_in servaddr;
   if ((_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -21,12 +44,7 @@ int Udp::init() {
     WARN("bind failed %d : %s", errno, strerror(errno));
     return (errno);
   }
-  _txd >> [this](const Bytes &in) {
-    UdpMsg msg;
-    msg.dst = _dst;
-    msg.message = in;
-    send(msg);
-  };
+
   INFO("UDP listening port:%d socket:%d", _myPort, _sockfd);
   return 0;
 }
@@ -55,8 +73,8 @@ int Udp::receive(UdpMsg &rxd) {
     rxd.src.port = ntohs(clientaddr.sin_port);
     rxd.dst.ip = INADDR_ANY;
     rxd.dst.port = _myPort;
-    /*  INFO(" received from %s to %s  ", rxd.src.toString().c_str(),
-           rxd.dst.toString().c_str());*/
+    INFO(" received from %s to %s  ", rxd.src.toString().c_str(),
+         rxd.dst.toString().c_str());
     _rxd.on(Bytes(buffer, buffer + rc));
     return 0;
   } else {

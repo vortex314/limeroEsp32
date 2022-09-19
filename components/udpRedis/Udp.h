@@ -1,6 +1,7 @@
 // Server side implementation of UDP client-server model
 #ifndef UDP_H
 #define UDP_H
+#include <limero.h>
 #include <lwip/netdb.h>
 #include <string.h>
 #include <sys/param.h>
@@ -20,7 +21,6 @@
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
 #include "nvs_flash.h"
-#include <limero.h>
 
 #define PORT 9001
 #define MAXLINE 1500
@@ -64,9 +64,11 @@ class Udp : public Actor {
   ValueFlow<Bytes> _txd;
   ValueFlow<Bytes> _rxd;
   UdpAddress _dst;
+  UdpMsg _udpMsg;
+  TimerSource _recvTimer;
 
  public:
-  Udp(Thread &thr) : Actor(thr){_rxd.async(thr);};
+  Udp(Thread &thr);
   Sink<Bytes> &txd() { return _txd; }
   Source<Bytes> &rxd() { return _rxd; }
   void dst(const char *);

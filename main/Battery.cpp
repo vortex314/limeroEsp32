@@ -8,43 +8,50 @@
 #include <limero.h>
 
 Log logger;
+Thread workerThread("worker");
+
+Uext uext(1);
+I2C& i2c = uext.getI2C();
+LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
+
+Wifi wifi(workerThread);
+Udp udp(workerThread);
+RedisSpineCbor redis(workerThread, "battery");
+TimerSource timerSource(workerThread, 100, true, "clock");
+TimerSource reportTimer(workerThread, 1000, true, "reportTimer");
+
 extern "C" void app_main() {
-  Thread workerThread("worker");
-  Thread udpThread("udp");
-
-  Uext uext(1);
-  I2C& i2c = uext.getI2C();
-  LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
-
-  Wifi wifi(workerThread);
-  Udp udp(udpThread);
-  UdpMsg udpMsg;
-  RedisSpineCbor redis(workerThread, "battery");
-
   ledBlinker.init();
   wifi.init();
   udp.port(9000);
-  udp.init();
-  redis.init();
+  udp.dst("192.168.0.197:9001");
 
-  redis.txdFrame >> udp.txd();
-  udp.rxd() >> redis.rxdFrame;
+  redis.txdCbor >> udp.txd();
+  udp.rxd() >> redis.rxdCbor;
 
-  // udp.dst("192.168.0.197");
-  UdpAddress::fromUri(udpMsg.dst, "192.168.0.197:9001");
+  wifi.connected >> [&](bool connected) {
+    if (connected) {
+      INFO("connected, init udp and redis ");
+      redis.init();
+      udp.init();
+    }
+  };
+
+  redis.connected >> ledBlinker.blinkSlow();
+
+  auto& test = redis.publisher<float>("tester/voltage1");
 
   i2c.setClock(100000);
   i2c.init();
   i2c.onFailure(
       [](Error& error) { DEBUG("%s:%d", error.message, error.code); });
 
-  TimerSource timerSource(workerThread, 100, true, "clock");
   INFO(" scanning I2C bus ...");
   uint8_t i2cAddress = 0;
   uint8_t count = 0;
   uint8_t bytes[] = {0x00};
+  reportTimer >> [&](const TimerMsg&) { test.on(3.14); };
   timerSource >> [&](const TimerMsg&) {
-    udp.send(udpMsg);
     i2c.setSlaveAddress(i2cAddress);
     int rc = i2c.write(bytes, 1);
     if (rc == 0) {
@@ -58,7 +65,6 @@ extern "C" void app_main() {
       count = 0;
     }
   };
-
-  workerThread.run();
+  workerThread.start();
 }
 #endif
