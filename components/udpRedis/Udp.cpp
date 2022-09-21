@@ -7,6 +7,7 @@ Thread udpThread("udpThread");
 
 Udp::Udp(Thread &thr)
     : Actor(thr), _recvTimer(udpThread, 1000, true, "recvTimer") {
+  _rxdBuffer.resize(UDP_MAX_SIZE);
   _rxd.async(thr);
   _txd >> [&](const Bytes &in) {
     DEBUG("UDP TXD[%d] to %s ", in.size(), _dst.toString().c_str());
@@ -17,7 +18,8 @@ Udp::Udp(Thread &thr)
   };
   _recvTimer >> [this](const TimerMsg &) {
     UdpMsg msg;
-    if (receive(msg) > 0) {
+    if (receive(msg) == 0) {
+      INFO("   rcv %d", msg.message.size());
       _rxd.on(msg.message);
     }
   };
@@ -63,19 +65,20 @@ int Udp::receive(UdpMsg &rxd) {
   clientaddr.sin_family = AF_INET;
   clientaddr.sin_port = htons(_myPort);
   clientaddr.sin_addr.s_addr = INADDR_ANY;
+  rxd.message.resize(1500);
 
-  int rc = recvfrom(_sockfd, (char *)buffer, sizeof(buffer), MSG_WAITALL,
-                    (struct sockaddr *)&clientaddr, &len);
+  int rc = recvfrom(_sockfd, (char *)_rxdBuffer.data(), UDP_MAX_SIZE,
+                    MSG_WAITALL, (struct sockaddr *)&clientaddr, &len);
 
   if (rc >= 0) {
     rxd.message.clear();
+    for (uint32_t i = 0; i < rc; i++) rxd.message.push_back(_rxdBuffer[i]);
     rxd.src.ip = clientaddr.sin_addr.s_addr;
     rxd.src.port = ntohs(clientaddr.sin_port);
     rxd.dst.ip = INADDR_ANY;
     rxd.dst.port = _myPort;
-    INFO(" received from %s to %s  ", rxd.src.toString().c_str(),
+    INFO(" received [%d] from %s to %s  ", rc, rxd.src.toString().c_str(),
          rxd.dst.toString().c_str());
-    _rxd.on(Bytes(buffer, buffer + rc));
     return 0;
   } else {
     return errno;

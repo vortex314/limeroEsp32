@@ -23,7 +23,7 @@
 #include "nvs_flash.h"
 
 #define PORT 9001
-#define MAXLINE 1500
+#define UDP_MAX_SIZE 1500
 
 typedef std::vector<uint8_t> Bytes;
 
@@ -60,7 +60,7 @@ struct UdpMsg {
 class Udp : public Actor {
   uint16_t _myPort = 1883;
   int _sockfd;
-  char buffer[MAXLINE];
+  Bytes _rxdBuffer;
   ValueFlow<Bytes> _txd;
   ValueFlow<Bytes> _rxd;
   UdpAddress _dst;
