@@ -1,6 +1,6 @@
 #ifdef MAIN_BATTERY
 #include <Hardware.h>
-#include <INA3211.h>
+#include <INA3221.h>
 #include <LedBlinker.h>
 #include <Log.h>
 #include <RedisSpineCbor.h>

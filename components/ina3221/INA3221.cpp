@@ -29,21 +29,20 @@
 #include "INA3221.h"
 
 void INA3221::_read(ina3221_reg_t reg, uint16_t *val) {
-  _i2c.setSlaveAddreess(_i2c_addr);
+  _i2c.setSlaveAddress(_i2c_addr);
   _i2c.write(reg);  // Register
 
   uint8_t buffer[2];
   if (_i2c.read(buffer, 2) == 0) {
-    *val = buffer[0] << 8 + buffer[1];
+    *val = (buffer[0] << 8) + buffer[1];
   }
 }
 
 void INA3221::_write(ina3221_reg_t reg, uint16_t *val) {
-  _i2c.setSlaveAddreess(_i2c_addr);
-  uint8_t buffer[3] = {reg, *val >> 8, *val & 0xFF};
+  _i2c.setSlaveAddress(_i2c_addr);
+  uint8_t buffer[3] = {reg, (uint8_t)(*val >> 8), (uint8_t)(*val & 0xFF)};
   _i2c.write(buffer, 3);
 }
-
 
 void INA3221::setShuntRes(uint32_t res_ch1, uint32_t res_ch2,
                           uint32_t res_ch3) {
@@ -275,7 +274,7 @@ void INA3221::setChannelDisable(ina3221_ch_t channel) {
 }
 
 void INA3221::setWarnAlertShuntLimit(ina3221_ch_t channel, int32_t voltageuV) {
-  ina3221_reg_t reg;
+  ina3221_reg_t reg=INA3221_REG_CONF;
   int16_t val = 0;
 
   switch (channel) {
@@ -295,7 +294,7 @@ void INA3221::setWarnAlertShuntLimit(ina3221_ch_t channel, int32_t voltageuV) {
 }
 
 void INA3221::setCritAlertShuntLimit(ina3221_ch_t channel, int32_t voltageuV) {
-  ina3221_reg_t reg;
+  ina3221_reg_t reg=INA3221_REG_CONF;
   int16_t val = 0;
 
   switch (channel) {
@@ -308,6 +307,7 @@ void INA3221::setCritAlertShuntLimit(ina3221_ch_t channel, int32_t voltageuV) {
     case INA3221_CH3:
       reg = INA3221_REG_CH3_CRIT_ALERT_LIM;
       break;
+
   }
 
   val = voltageuV / 5;
@@ -372,7 +372,7 @@ void INA3221::setCurrentSumDisable(ina3221_ch_t channel) {
 
 int32_t INA3221::getShuntVoltage(ina3221_ch_t channel) {
   int32_t res;
-  ina3221_reg_t reg;
+  ina3221_reg_t reg=INA3221_REG_CONF;
   uint16_t val_raw = 0;
 
   switch (channel) {
@@ -470,7 +470,7 @@ float INA3221::getCurrentCompensated(ina3221_ch_t channel) {
 
 float INA3221::getVoltage(ina3221_ch_t channel) {
   float voltage_V = 0.0;
-  ina3221_reg_t reg;
+  ina3221_reg_t reg=INA3221_REG_CONF;
   uint16_t val_raw = 0;
 
   switch (channel) {

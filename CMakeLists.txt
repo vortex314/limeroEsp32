@@ -44,6 +44,7 @@ add_definitions(
     -ffunction-sections 
     -fdata-sections 
     -Wl,--gc-sections
+    -Werror=switch
     ) # was no-exceptions 
 
     project(limeroEsp32)

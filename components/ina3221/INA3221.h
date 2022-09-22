@@ -44,8 +44,9 @@ typedef enum {
   INA3221_CH1 = 0,
   INA3221_CH2,
   INA3221_CH3,
-  INA3221_CH_NUM
 } ina3221_ch_t;
+
+#define INA3221_CH_NUM 3
 
 // Registers
 typedef enum {
@@ -152,14 +153,14 @@ class INA3221 {
   void _write(ina3221_reg_t reg, uint16_t *val);
 
  public:
-  INA3221(I2C &i2c, ina3221_addr_t addr) : _i2c(i2c), _i2c_addr(addr){
-      _shuntRes[0] = 10;
-  _shuntRes[1] = 10;
-  _shuntRes[2] = 10;
+  INA3221(I2C &i2c, ina3221_addr_t addr) : _i2c(i2c), _i2c_addr(addr) {
+    _shuntRes[0] = 10;
+    _shuntRes[1] = 10;
+    _shuntRes[2] = 10;
 
-  _filterRes[0] = 0;
-  _filterRes[1] = 0;
-  _filterRes[2] = 0;
+    _filterRes[0] = 0;
+    _filterRes[1] = 0;
+    _filterRes[2] = 0;
   };
   // Initializes INA3221
 

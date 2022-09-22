@@ -8,4 +8,5 @@ idf_component_register(SRCS
             nvs_flash 
             ledBlinker 
             udpRedis
+            ina3221
             )

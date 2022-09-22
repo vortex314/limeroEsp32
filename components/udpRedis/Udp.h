@@ -82,6 +82,5 @@ class Udp : public Actor {
   int receive(UdpMsg &);
   int send(const UdpMsg &);
   int fd() { return _sockfd; };
-  int deInit();
 };
 #endif
