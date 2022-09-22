@@ -1,5 +1,6 @@
 #ifdef MAIN_BATTERY
 #include <Hardware.h>
+#include <INA3211.h>
 #include <LedBlinker.h>
 #include <Log.h>
 #include <RedisSpineCbor.h>
@@ -12,6 +13,7 @@ Thread workerThread("worker");
 
 Uext uext(1);
 I2C& i2c = uext.getI2C();
+INA3221 ina3221(i2c, INA3221_ADDR40_GND);
 LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
 
 Wifi wifi(workerThread);
@@ -24,14 +26,13 @@ extern "C" void app_main() {
   ledBlinker.init();
   wifi.init();
 
-
   redis.txdCbor >> udp.txd();
   udp.rxd() >> redis.rxdCbor;
 
   wifi.connected >> udp.wifiConnected();
 
   redis.connected >> ledBlinker.blinkSlow();
-  
+
   udp.port(9000);
   udp.dst("192.168.0.197:9001");
   redis.init();
@@ -49,18 +50,9 @@ extern "C" void app_main() {
   uint8_t bytes[] = {0x00};
   reportTimer >> [&](const TimerMsg&) { test.on(3.14); };
   timerSource >> [&](const TimerMsg&) {
-    i2c.setSlaveAddress(i2cAddress);
-    int rc = i2c.write(bytes, 1);
-    if (rc == 0) {
-      INFO("found device at 0x%.2X : %d", i2cAddress, rc);
-      count++;
-    }
-    i2cAddress++;
-    if (i2cAddress > 0x7F) {
-      INFO("found devices : %d ", count);
-      i2cAddress = 0;
-      count = 0;
-    }
+    INFO(" INA3221 Manufacture Id 0x%X", ina3221.getManufID());
+    INFO(" INA3221         Die Id 0x%X", ina3221.getDieID());
+    test.on(ina3221.getShuntVoltage(INA3221_CH1));
   };
   workerThread.start();
 }
