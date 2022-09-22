@@ -2,6 +2,13 @@
 #include <Log.h>
 #include <StringUtility.h>
 #include <Udp.h>
+#include <arpa/inet.h>
+#include <errno.h>   //For errno - the error number
+#include <netdb.h>   //hostent
+//#include <stdio.h>   //printf
+//#include <stdlib.h>  //for exit(0);
+#include <string.h>  //memset
+#include <sys/socket.h>
 
 Thread udpThread("udpThread");
 
@@ -11,16 +18,20 @@ Udp::Udp(Thread &thr)
   _rxd.async(thr);
   _txd >> [&](const Bytes &in) {
     DEBUG("UDP TXD[%d] to %s ", in.size(), _dst.toString().c_str());
-    UdpMsg msg;
-    msg.dst = _dst;
-    msg.message = in;
-    send(msg);
+    _txdMsg.dst = _dst;
+    _txdMsg.message = in;
+    send(_txdMsg);
   };
   _recvTimer >> [this](const TimerMsg &) {
-    UdpMsg msg;
-    if (receive(msg) == 0) {
-      INFO("   rcv %d", msg.message.size());
-      _rxd.on(msg.message);
+    while (_wifiConnected()) {
+      while (receive(_rxdMsg) == 0) _rxd.on(_rxdMsg.message);
+    }
+  };
+  _wifiConnected >> [this](const bool &in) {
+    if (in) {
+      init();
+    } else {
+      deInit();
     }
   };
   udpThread.start();
@@ -53,7 +64,7 @@ int Udp::init() {
 
 int Udp::deInit() {
   int rc = close(_sockfd);
-  if (rc) perror("close failed");
+  if (rc) WARN("close failed");
   return rc;
 }
 
@@ -85,9 +96,6 @@ int Udp::receive(UdpMsg &rxd) {
   }
 }
 
-// Client side implementation of UDP client-server model
-
-// Driver code
 int Udp::send(const UdpMsg &udpMsg) {
   struct sockaddr_in server;
   server.sin_family = AF_INET;
@@ -103,25 +111,6 @@ int Udp::send(const UdpMsg &udpMsg) {
   return 0;
 }
 
-/*
-int main(int argc,char* argv[]) {
-        Udp udp;
-        udp.port(1883);
-        UdpMsg udpMsg;
-        udpMsg.dstIp("192.168.0.195");
-        udpMsg.dstPort(4210);
-        udpMsg.message=">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-"; udp.init(); udp.send(udpMsg); UdpMsg rcvMsg; udp.receive(rcvMsg);
-        printf("received : '%s'\n",rcvMsg.message.c_str());
-}
-*/
-#include <arpa/inet.h>
-#include <errno.h>   //For errno - the error number
-#include <netdb.h>   //hostent
-#include <stdio.h>   //printf
-#include <stdlib.h>  //for exit(0);
-#include <string.h>  //memset
-#include <sys/socket.h>
 bool getInetAddr(in_addr_t &addr, std::string &hostname) {
   BZERO(addr);
   struct addrinfo hints, *servinfo, *p;
@@ -161,8 +150,6 @@ bool getNetPort(uint16_t &x, const std::string &s) {
       return false;
     }
   }
-  //  INFO("getNetPort(%s)=%d",s.c_str(),x);
-  //  x = htons(x);
   return true;
 }
 

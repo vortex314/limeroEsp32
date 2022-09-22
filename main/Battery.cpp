@@ -23,21 +23,18 @@ TimerSource reportTimer(workerThread, 1000, true, "reportTimer");
 extern "C" void app_main() {
   ledBlinker.init();
   wifi.init();
-  udp.port(9000);
-  udp.dst("192.168.0.197:9001");
+
 
   redis.txdCbor >> udp.txd();
   udp.rxd() >> redis.rxdCbor;
 
-  wifi.connected >> [&](bool connected) {
-    if (connected) {
-      INFO("connected, init udp and redis ");
-      redis.init();
-      udp.init();
-    }
-  };
+  wifi.connected >> udp.wifiConnected();
 
   redis.connected >> ledBlinker.blinkSlow();
+  
+  udp.port(9000);
+  udp.dst("192.168.0.197:9001");
+  redis.init();
 
   auto& test = redis.publisher<float>("tester/voltage1");
 

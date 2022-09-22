@@ -63,17 +63,22 @@ class Udp : public Actor {
   Bytes _rxdBuffer;
   ValueFlow<Bytes> _txd;
   ValueFlow<Bytes> _rxd;
+  ValueFlow<bool> _wifiConnected;
   UdpAddress _dst;
   UdpMsg _udpMsg;
   TimerSource _recvTimer;
+  UdpMsg _txdMsg;
+  UdpMsg _rxdMsg;
 
  public:
   Udp(Thread &thr);
   Sink<Bytes> &txd() { return _txd; }
   Source<Bytes> &rxd() { return _rxd; }
+  Sink<bool> &wifiConnected() { return _wifiConnected; }
   void dst(const char *);
   void port(uint16_t port) { _myPort = port; }
   int init();
+  int deInit();
   int receive(UdpMsg &);
   int send(const UdpMsg &);
   int fd() { return _sockfd; };
