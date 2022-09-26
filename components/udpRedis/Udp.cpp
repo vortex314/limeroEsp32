@@ -10,14 +10,16 @@
 #include <string.h>  //memset
 #include <sys/socket.h>
 
-Thread udpThread("udpThread");
+Thread udpRcvThread("udpRcvThread");
+Thread udpSndThread("udpSndThread");
 
 Udp::Udp(Thread &thr)
-    : Actor(thr), _recvTimer(udpThread, 1000, true, "recvTimer") {
+    : Actor(thr), _recvTimer(udpRcvThread, 1000, true, "recvTimer") {
   _rxdBuffer.resize(UDP_MAX_SIZE);
+  _txd.async(udpSndThread);
   _rxd.async(thr);
   _txd >> [&](const Bytes &in) {
-    DEBUG("UDP TXD[%d] to %s ", in.size(), _dst.toString().c_str());
+    INFO("UDP TXD[%d] to %s ", in.size(), _dst.toString().c_str());
     _txdMsg.dst = _dst;
     _txdMsg.message = in;
     send(_txdMsg);
@@ -34,7 +36,8 @@ Udp::Udp(Thread &thr)
       deInit();
     }
   };
-  udpThread.start();
+  udpRcvThread.start();
+  udpSndThread.start();
 }
 
 void Udp::dst(const char *ip) { UdpAddress::fromUri(_dst, ip); }
