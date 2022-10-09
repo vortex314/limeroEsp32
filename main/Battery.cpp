@@ -21,7 +21,8 @@ LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
 Wifi wifi(workerThread);
 Udp udp(workerThread);
 RedisSpineCbor redis(workerThread, "battery");
-TimerSource timerSource(workerThread, 1000, true, "clock");
+TimerSource clock_1_sec(workerThread, 1000, true, "clock_1_sec");
+TimerSource clock_2_sec(workerThread, 2000, true, "clock_2_sec");
 
 CborEncoder props(1000);
 
@@ -29,8 +30,11 @@ double ch1Power, ch2Power, ch3Power;
 uint64_t ch1Time, ch2Time, ch3Time;
 
 typedef enum { M_IDLE, M_CHARGING, M_DECHARGING } Mode;
-std::vector<std::string> modeNames = {"idle", "charging", "decharging"};
+std::vector<std::string> modeNames = {"idle", "charge", "discharge"};
 ValueFlow<Mode> mode(M_IDLE);
+std::vector<Mode> scenario = {M_IDLE, M_CHARGING, M_DECHARGING, M_CHARGING,
+                              M_IDLE};
+int scenarioIndex = 5;
 
 extern "C" void app_main() {
   loadPin.setMode(DigitalOut::Mode::DOUT_PULL_UP);
@@ -48,20 +52,35 @@ extern "C" void app_main() {
   udp.dst("192.168.0.197:9001");
   redis.init();
 
+  auto& logQueue = *new QueueFlow<std::string>(5);
+  logQueue.async(workerThread);
+  logQueue >> redis.publisher<std::string>("system/log");
+
+  auto& resetFunction = *new SinkFunction<bool>([&](const bool&) {
+    INFO("reset");
+    ch1Power = 0;
+    ch2Power = 0;
+    ch3Power = 0;
+  });
+
   mode >> *new SinkFunction<Mode>([&](const Mode& m) {
     INFO("mode change %s", modeNames[m].c_str());
+    logQueue.on("mode change " + modeNames[m] + " powerCharge " +
+                std::to_string(ch1Power) + " powerLoad " +
+                std::to_string(ch2Power));
+    resetFunction.on(true);
     switch (m) {
       case M_IDLE:
         loadPin.write(1);
-        chargePin.write(1);
+        chargePin.write(0);
         break;
       case M_CHARGING:
         loadPin.write(1);
-        chargePin.write(0);
+        chargePin.write(1);
         break;
       case M_DECHARGING:
         loadPin.write(0);
-        chargePin.write(1);
+        chargePin.write(0);
         break;
     }
   });
@@ -77,13 +96,10 @@ extern "C" void app_main() {
         }
       });
 
-  redis.subscriber<bool>("tester/reset") >>
-      *new SinkFunction<bool>([&](const bool&) {
-        INFO("reset");
-        ch1Power = 0;
-        ch2Power = 0;
-        ch3Power = 0;
-      });
+  redis.subscriber<bool>("tester/reset") >> resetFunction;
+
+  redis.subscriber<bool>("tester/startScenario") >>
+      [&](const bool&) { scenarioIndex = 0; };
 
   mode = M_IDLE;
 
@@ -104,7 +120,12 @@ extern "C" void app_main() {
   ch2Time = Sys::millis();
   ch3Time = Sys::millis();
 
-  timerSource >> [&](const TimerMsg&) {
+  clock_2_sec >> [&](const TimerMsg&) {
+    /* logQueue.on("powerCharge " + std::to_string(ch1Power) + " powerLoad " +
+                 std::to_string(ch2Power));*/
+  };
+
+  clock_1_sec >> [&](const TimerMsg&) {
     INFO(" INA3221 Manufacture Id 0x%X", ina3221.getManufID());
     INFO(" INA3221         Die Id 0x%X", ina3221.getDieID());
     ch1Power += ina3221.getCurrent(INA3221_CH1) *
@@ -138,14 +159,44 @@ extern "C" void app_main() {
       props.write("power_3").write(ch3Power / 1000);
 
       props.write("mode").write(modeNames[mode()]);
-
+      props.write("scenarioIndex").write(scenarioIndex);
       props.write('}').write(']').end();
       redis.txdCbor.on(props);
     }
-    // decharged enough
-    if (batteryVoltage < 3.0) {
-      INFO("battery voltage too low %f ", batteryVoltage);
-      mode.on(M_IDLE);
+    switch (mode()) {
+      case M_IDLE:
+        if (scenarioIndex == 0) {
+          logQueue.on("scenario start");
+          scenarioIndex++;
+          mode = M_CHARGING;
+          logQueue.on(" charging start ");
+        }
+        break;
+      case M_CHARGING:
+        if (scenarioIndex == 1 && ina3221.getCurrent(INA3221_CH3) == 0.0) {
+          scenarioIndex++;
+          mode = M_DECHARGING;
+          logQueue.on(" discharging start , power charged " +
+                      std::to_string(ch3Power / 3600) + " Wh");
+          ch2Power = 0;
+        }
+        if (scenarioIndex == 3 && ina3221.getCurrent(INA3221_CH3) == 0.0) {
+          scenarioIndex++;
+          mode = M_IDLE;
+          logQueue.on(" discharging start , power charged " +
+                      std::to_string(ch3Power / 3600) + " Wh");
+          ch2Power = 0;
+        }
+        break;
+      case M_DECHARGING:
+        if (scenarioIndex == 2 && batteryVoltage < 3.0) {
+          scenarioIndex++;
+          mode = M_CHARGING;
+          logQueue.on(" charging start , power discharged " +
+                      std::to_string(ch2Power / 3600) + " Wh");
+          ch3Power = 0;
+        }
+        break;
     }
   };
   workerThread.start();
