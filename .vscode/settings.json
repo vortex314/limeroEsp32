@@ -68,7 +68,13 @@
         "*.ipp": "cpp",
         "*.inc": "cpp",
         "*.contiki": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "forward_list": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "editor.formatOnSave": true,
