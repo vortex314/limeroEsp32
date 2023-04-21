@@ -6,6 +6,8 @@ set(WIFI_PASS $ENV{WIFI_PASS})
 set(ENV{IDF_CCACHE_ENABLE} 1)
 set(ENV{ESPPORT} /dev/ttyUSB0)
 set(ENV{ESPBAUD} 921600)
+set(CMAKE_C_COMPILER /home/lieven/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc)
+set(CMAKE_CXX_COMPILER /home/lieven/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++)
 
 idf_build_set_property(COMPILE_OPTIONS "-Wno-error" APPEND)
 
@@ -23,7 +25,7 @@ set(TARGET MAIN_BATTERY) # Battery capacity tester
 include_directories( main 
     ${LIMERO}/inc  
     ${ARDUINOJSON}/src
-    $(IDF_PATH)/components/freertos/include/freertos
+    ${IDF_PATH}/components/freertos/include/freertos
      )
 
      

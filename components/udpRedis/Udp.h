@@ -66,7 +66,7 @@ class Udp : public Actor {
   ValueFlow<bool> _wifiConnected;
   UdpAddress _dst;
   UdpMsg _udpMsg;
-  TimerSource _recvTimer;
+  TimerSource &_recvTimer;
   UdpMsg _txdMsg;
   UdpMsg _rxdMsg;
 

@@ -1,8 +1,8 @@
 #include "LedBlinker.h"
 
 LedBlinker::LedBlinker(Thread& thr, uint32_t pin, uint32_t delay)
-    : Actor(thr), _blinkTimer(thr, delay, true) {
-  _blinkTimer >> ([&](const TimerMsg tm) {
+    : Actor(thr), _blinkSlow(thr), _blinkTimer(thr.createTimer(delay, true)) {
+  _blinkTimer >> ([&](const TimerSource&) {
     gpio_set_level((gpio_num_t)_pin, _on);
     _on = _on ? 0 : 1;
   });

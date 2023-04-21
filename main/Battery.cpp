@@ -22,8 +22,10 @@ LedBlinker ledBlinker(workerThread, GPIO_NUM_2, 100);
 Wifi wifi(workerThread);
 Udp udp(workerThread);
 RedisSpineCbor redis(workerThread, "battery");
-TimerSource clock_1_sec(workerThread, 1000, true, "clock_1_sec");
-TimerSource clock_2_sec(workerThread, 2000, true, "clock_2_sec");
+TimerSource& clock_1_sec =
+    workerThread.createTimer(1000, true, true, "clock_1_sec");
+TimerSource& clock_2_sec =
+    workerThread.createTimer(2000, true, true, "clock_2_sec");
 
 CborEncoder props(1000);
 
@@ -32,7 +34,7 @@ uint64_t ch1Time, ch2Time, ch3Time;
 
 typedef enum { M_IDLE, M_CHARGING, M_DECHARGING } Mode;
 std::vector<std::string> modeNames = {"idle", "charge", "discharge"};
-ValueFlow<Mode> mode(M_IDLE);
+ValueFlow<Mode> mode(workerThread, "mode");
 std::vector<Mode> scenario = {M_IDLE, M_CHARGING, M_DECHARGING, M_CHARGING,
                               M_IDLE};
 int scenarioIndex = 5;
@@ -43,6 +45,7 @@ extern "C" void app_main() {
   chargePin.init();
   ledBlinker.init();
   wifi.init();
+  mode = M_IDLE;
 
   redis.txdCbor >> udp.txd();
   udp.rxd() >> redis.rxdCbor;
@@ -53,8 +56,7 @@ extern "C" void app_main() {
   udp.dst("192.168.0.197:9001");
   redis.init();
 
-  auto& logQueue = *new QueueFlow<std::string>(5);
-  logQueue.async(workerThread);
+  auto& logQueue = *new QueueFlow<std::string>(workerThread, 5, "logQueue");
   logQueue >> redis.publisher<std::string>("system/log");
 
   auto& resetFunction = *new SinkFunction<bool>([&](const bool&) {
@@ -66,7 +68,8 @@ extern "C" void app_main() {
 
   mode >> *new SinkFunction<Mode>([&](const Mode& m) {
     INFO("mode change %s", modeNames[m].c_str());
-    std::string v = stringFormat(" new Mode : %s powerCharge=%f powerLoad=%f ",modeNames[m],chargePower,loadPower);
+    std::string v = stringFormat(" new Mode : %s powerCharge=%f powerLoad=%f ",
+                                 modeNames[m], chargePower, loadPower);
     logQueue.on(v);
     switch (m) {
       case M_IDLE:
@@ -97,8 +100,11 @@ extern "C" void app_main() {
 
   redis.subscriber<bool>("tester/reset") >> resetFunction;
 
-  redis.subscriber<bool>("tester/startScenario") >>
-      [&](const bool&) { scenarioIndex = 0; };
+  redis.subscriber<bool>("tester/startScenario") >> [&](const bool&) {
+    scenarioIndex = 0;
+    INFO("====================> startScenario");
+    logQueue.on("===============> startScenario");
+  };
 
   mode = M_IDLE;
 
@@ -119,19 +125,19 @@ extern "C" void app_main() {
   ch2Time = Sys::millis();
   ch3Time = Sys::millis();
 
-  clock_2_sec >> [&](const TimerMsg&) {
+  clock_2_sec >> [&](const TimerSource&) {
     /* logQueue.on("powerCharge " + std::to_string(ch1Power) + " powerLoad " +
                  std::to_string(ch2Power));*/
   };
 
-  clock_1_sec >> [&](const TimerMsg&) {
+  clock_1_sec >> [&](const TimerSource&) {
     INFO(" INA3221 Manufacture Id 0x%X", ina3221.getManufID());
     INFO(" INA3221         Die Id 0x%X", ina3221.getDieID());
-    ch1Power += ina3221.getCurrent(INA3221_CH1) *
+    ch1Power += ina3221.getCurrent(INA3221_CH1) * 0.001 / 3600.0 *
                 ina3221.getVoltage(INA3221_CH1) * (Sys::millis() - ch1Time);
-    loadPower += ina3221.getCurrent(INA3221_CH2) *
+    loadPower += ina3221.getCurrent(INA3221_CH2) * 0.001 / 3600.0 *
                  ina3221.getVoltage(INA3221_CH2) * (Sys::millis() - ch2Time);
-    chargePower += ina3221.getCurrent(INA3221_CH3) *
+    chargePower += ina3221.getCurrent(INA3221_CH3) * 0.001 / 3600.0 *
                    ina3221.getVoltage(INA3221_CH3) * (Sys::millis() - ch3Time);
     ch1Time = Sys::millis();
     ch2Time = Sys::millis();
@@ -153,19 +159,20 @@ extern "C" void app_main() {
       props.write("voltage_2").write(batteryVoltage);
       props.write("voltage_3").write(ina3221.getVoltage(INA3221_CH3));
 
-      props.write("power_1").write(ch1Power / 1000);
-      props.write("power_2").write(loadPower / 1000);
-      props.write("power_3").write(chargePower / 1000);
+      props.write("power_1").write(ch1Power);
+      props.write("power_2").write(loadPower);
+      props.write("power_3").write(chargePower);
 
       props.write("mode").write(modeNames[mode()]);
-      props.write("scenarioIndex").write(scenarioIndex);
+      props.write("scenarioIndex").write((uint32_t)scenarioIndex);
       props.write('}').write(']').end();
       redis.txdCbor.on(props);
     }
-    INFO(" chargePower %f Ws loadPower %f Ws ", chargePower, loadPower);
+    INFO(" chargePower %f Wh loadPower %f Wh ", chargePower, loadPower);
     switch (mode()) {
       case M_IDLE:
         if (scenarioIndex == 0) {
+          INFO("scenario 0");
           logQueue.on("scenario start");
           scenarioIndex++;
           mode = M_CHARGING;
@@ -179,20 +186,20 @@ extern "C" void app_main() {
           mode = M_DECHARGING;
           loadPower = 0;
           INFO("%s", stringFormat(" discharging start , power charged %f Wh",
-                                  chargePower / 3600.0)
+                                  chargePower)
                          .c_str());
           logQueue.on(stringFormat(" discharging start , power charged %f Wh",
-                                   chargePower / 3600.0));
+                                   chargePower));
         }
         if (scenarioIndex == 3 && ina3221.getCurrent(INA3221_CH3) == 0.0) {
           scenarioIndex++;
           mode = M_IDLE;
           loadPower = 0;
           INFO("%s", stringFormat(" discharging start  , power charged %f Wh",
-                                  chargePower / 3600.0)
+                                  chargePower)
                          .c_str());
           logQueue.on(stringFormat(" discharging start , power charged %f Wh",
-                                   chargePower / 3600.0));
+                                   chargePower));
         }
         break;
       case M_DECHARGING:
@@ -201,10 +208,10 @@ extern "C" void app_main() {
           mode = M_CHARGING;
           chargePower = 0;
           INFO("%s", stringFormat(" charging start , power discharged %f Wh",
-                                  loadPower / 3600.0)
+                                  loadPower)
                          .c_str());
           logQueue.on(stringFormat(" charging start , power discharged %f Wh",
-                                   loadPower / 3600.0));
+                                   loadPower));
         }
         break;
     }
