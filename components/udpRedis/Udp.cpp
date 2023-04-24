@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <errno.h>  //For errno - the error number
 #include <netdb.h>  //hostent
-// #include <stdio.h>   //printf
 // #include <stdlib.h>  //for exit(0);
 #include <string.h>  //memset
 #include <sys/socket.h>

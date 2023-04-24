@@ -80,5 +80,7 @@
     "editor.formatOnSave": true,
     "C_Cpp.clang_format_fallbackStyle": "Google",
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
-    "idf.adapterTargetName": "esp32"
+    "idf.adapterTargetName": "esp32",
+    "idf.port": "/dev/ttyUSB0",
+    "idf.flashType": "UART"
 }

@@ -20,7 +20,7 @@
                 "HOSTNAME=drive",
                 "COMMAND",
                 "MQTT_PORT=1883",
-                "MAIN_BATTERY"
+                "MOTOR_DRIVE"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
